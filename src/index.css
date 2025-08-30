@@ -1,0 +1,36 @@
+:root {
+  --bs-primary: #1E5AA6;
+  --bs-primary-rgb: 30, 90, 166;
+
+  --bs-secondary: #0F172A;
+  --bs-secondary-rgb: 15, 23, 42;
+
+  --brand-accent: #F26B21;
+  --brand-accent-rgb: 242, 107, 33;
+
+  --bs-success: #16A34A;
+  --bs-warning: #FACC15;
+  --bs-danger: #DC2626;
+  --bs-info: #0EA5E9;
+
+  --bs-body-font-family: 'Poppins', sans-serif;
+}
+.navbar-custom {
+  background-color: #163D73; /* azul más oscuro */
+}
+/* Ejemplo de botón acento */
+.btn-accent {
+  color: #fff !important;
+  background-color: var(--brand-accent) !important;
+  border-color: var(--brand-accent) !important;
+  transition: none !important;
+}
+
+.btn-accent:hover,
+.btn-accent:focus,
+.btn-accent:active {
+  color: #fff !important;
+  background-color: var(--brand-accent) !important;
+  border-color: var(--brand-accent) !important;
+}
+

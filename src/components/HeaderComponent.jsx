@@ -1,49 +1,66 @@
 import React from 'react'
+import { useNavigate } from 'react-router-dom';
+import ToolRent from '../assets/ToolRent.png';
 
 const HeaderComponent = () => {
+
+    const navigate = useNavigate();
+    function navigateToCreateTool() {
+        navigate('/create-tool');
+    }
+    function navigatetoListTools() {
+        navigate('/tools');
+    }
+
+
+    function navigateToCreateClient() {
+        navigate('/create-client');
+    }
+
+
+    function navigateToCreateUser() {
+        navigate('/create-user');
+    }
+    function navigateToCreateLoan() {
+        navigate('/create-loan');
+    }
+    function navigateToHome() {
+        navigate('/');
+    }
     return (
-    <nav className="navbar navbar-dark bg-dark fixed-top">
-  <div className="container-fluid">
-    <a className="navbar-brand" href="#">Offcanvas navbar</a>
-    <button className="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
-      <span className="navbar-toggler-icon"></span>
-    </button>
-<div className="offcanvas offcanvas-end bg-dark text-white" tabIndex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
-      <div className="offcanvas-header">
-        <h5 className="offcanvas-title" id="offcanvasNavbarLabel">Offcanvas</h5>
-        <button type="button" className="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-      </div>
-      <div className="offcanvas-body">
-        <ul className="navbar-nav justify-content-end flex-grow-1 pe-3">
-          <li className="nav-item">
-            <a className="nav-link active" aria-current="page" href="#">Home</a>
-          </li>
-          <li className="nav-item">
-            <a className="nav-link" href="#">Link</a>
-          </li>
-          <li className="nav-item dropdown">
-            <a className="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              Dropdown
-            </a>
-            <ul className="dropdown-menu">
-              <li><a className="dropdown-item" href="#">Action</a></li>
-              <li><a className="dropdown-item" href="#">Another action</a></li>
-              <li>
-                <hr className="dropdown-divider" />
-              </li>
-              <li><a className="dropdown-item" href="#">Something else here</a></li>
-            </ul>
-          </li>
-        </ul>
-        <form className="d-flex mt-3" role="search">
-          <input className="form-control me-2" type="search" placeholder="Search" aria-label="Search"/>
-          <button className="btn btn-outline-success" type="submit">Search</button>
-        </form>
-      </div>
-    </div>
-  </div>
-</nav>
-    )
+        <div>
+          <nav className="navbar navbar-expand-lg navbar-dark" style={{ background: "#1E5AA6" }}>
+            <div className="container">
+              <a className="navbar-brand d-flex align-items-center" href="#">
+                <img 
+                  src={ToolRent} 
+                  alt="ToolRent" 
+                  width="28" 
+                  height="28" 
+                  className="me-2 p-1 bg-white rounded-circle"
+                />
+                <span className="fw-bold">ToolRent</span>
+              </a>
+              <button
+                className="navbar-toggler"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#nav1"
+              >
+                <span className="navbar-toggler-icon"></span>
+              </button>
+              <div className="collapse navbar-collapse" id="nav1">
+                <ul className="navbar-nav me-auto">
+                  <li className="nav-item"><a className="nav-link active" onClick={navigateToHome}>Inicio</a></li>
+                  <li className="nav-item"><a className="nav-link" onClick={navigatetoListTools}>Catálogo</a></li>
+                  <li className="nav-item"><a className="nav-link" href="#">Iniciar Sesión</a></li>
+                </ul>
+                <button className="btn btn-accent" onClick={navigateToCreateLoan}>Reservar</button>
+              </div>
+            </div>
+          </nav>
+        </div>
+      )
 }
 
 export default HeaderComponent
