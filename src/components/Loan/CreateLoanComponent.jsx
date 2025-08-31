@@ -1,30 +1,47 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { createLoan } from '../../services/LoanService'
-import { listClients } from '../../services/ClientService'
+import { getTools } from '../../services/ToolService'
 
 const CreateLoanComponent = () => {
     const [returnDateExpected, setReturnDateExpected] = useState('')
     const [quantity, setQuantity] = useState(1)
     const [status, setStatus] = useState('ACTIVE')
-    const [repairCost, setRepairCost] = useState(0)
-    const [clients, setClients] = useState('')
-    const [userId, setUserId] = useState('')
-    const [toolId, setToolId] = useState('')
+    const [clientRut, setClientRut] = useState('')
+    const [userRut, setUserRut] = useState('')
+    const [toolId, setToolId] = useState(0)
+
+
+
+    const [tools, setTools] = useState([])
+    const [search, setSearch] = useState('')
+
+    const searcher = (e) => {
+        setSearch(e.target.value)
+        console.log(e.target.value)
+    }
+
+    let results = []
+    if(!search){
+        results = tools
+    } else {
+        results = tools.filter((dato) => 
+            dato.name.toLowerCase().includes(search.toLowerCase())
+        )
+    }
+
+
 
     useEffect(() => {
-        listClients().then((response) => {
-            setClients(response.data)
+        getTools().then((response) => {
+            setTools(response.data)
             console.log(response.data)
         }).catch((error) => {
-            console.error('Error al listar clientes:', error)
+            console.error('Error al listar herramientas:', error)
         })
     }, [])
 
-    const setFilteredClient = (e) => {
-        const selectedRut = e.target.value
-        setClients(clients.filter(client => client.rut === selectedRut))
-    }
+    
 
     const navigate = useNavigate()
 
@@ -32,14 +49,14 @@ const CreateLoanComponent = () => {
         e.preventDefault()
 
         const loan = {
-            returnDateExpected,
-            quantity,
-            status,
-            repairCost,
-            client: { rut: client },
-            user: { id: userId },
-            tool: { id: toolId }
+        returnDateExpected,
+        quantity,
+        status,
+        clientRut,
+        userRut,
+        toolId
         }
+
 
         console.log(loan)
 
@@ -48,10 +65,9 @@ const CreateLoanComponent = () => {
             setReturnDateExpected('')
             setQuantity(1)
             setStatus('ACTIVE')
-            setRepairCost(0)
-            setClient('')
-            setUserId('')
-            setToolId('')
+            setClientRut('')
+            setUserRut('')
+            setToolId(0)
 
         }).catch((error) => {
             console.error('Error al crear préstamo:', error)
@@ -96,46 +112,61 @@ const CreateLoanComponent = () => {
                                     <option value='REPLACEMENT'>Reemplazo</option>
                                 </select>
                             </div>
+                        
                             <div className='form-group mb-2'>
-                                <label className='form-label'>Costo de reparación:</label>
+                                <label className='form-label'>RUT del Cliente:</label>
                                 <input
-                                    type='number'
-                                    value={repairCost}
+                                    type='text'
+                                    value={clientRut}
                                     className='form-control'
-                                    onChange={(e) => setRepairCost(parseInt(e.target.value))}
+                                    onChange={(e) => setClientRut(e.target.value)}
                                 />
                             </div>
                             <div className='form-group mb-2'>
-                                <label className='form-label'>ID del Cliente:</label>
+                                <label className='form-label'>RUT del Usuario:</label>
                                 <input
                                     type='text'
-                                    value={clientId}
+                                    value={userRut}
                                     className='form-control'
-                                    onChange={(e) => setClientId(e.target.value)}
-                                />
-                            </div>
-                            <div className='form-group mb-2'>
-                                <label className='form-label'>ID del Usuario:</label>
-                                <input
-                                    type='text'
-                                    value={userId}
-                                    className='form-control'
-                                    onChange={(e) => setUserId(e.target.value)}
+                                    onChange={(e) => setUserRut(e.target.value)}
                                 />
                             </div>
                             <div className='form-group mb-2'>
                                 <label className='form-label'>ID de la Herramienta:</label>
                                 <input
-                                    type='text'
+                                    type='number'
                                     value={toolId}
                                     className='form-control'
-                                    onChange={(e) => setToolId(e.target.value)}
+                                    onChange={(e) => setToolId(Number(e.target.value))}
                                 />
                             </div>
                             <button type='submit' className='btn btn-primary'>Guardar Préstamo</button>
                         </form>
                     </div>
                 </div>
+            </div>
+            <div>
+                <input value={search} onChange={searcher} type="text" placeholder='search' className='form-control' />
+                <table className='table table-bordered table-striped'>
+                    <thead className='table-dark'>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Categoría</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {results.map(tool => (
+                            <tr key={tool.id} onClick={() => setToolId(tool.id)} style={{cursor: 'pointer'}}>
+                            <td>{tool.id}</td>
+                            <td>{tool.name}</td>
+                            <td>{tool.category}</td>
+                            <td>{tool.state}</td>
+                            </tr>
+                        ))}
+                        </tbody>
+                </table>
             </div>
         </div>
     )

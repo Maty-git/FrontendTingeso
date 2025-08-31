@@ -23,7 +23,7 @@ const CreateUserComponent = () => {
             setEmail('')
             setRut('')
             setPassword('')
-            setRole('EMPLOYEE')
+            setRole('')
         }).catch((error) => {
             console.log(error)
         })
@@ -83,10 +83,14 @@ const CreateUserComponent = () => {
                             <div className='form-group mb-2'>
                                 <label className='form-label'>Rol:</label>
                                 <select
+                                    name='role'
+                                    placeholder='Rol del Usuario'
+                                    type='text'
                                     className='form-control'
                                     value={role}
                                     onChange={(e) => setRole(e.target.value)}
                                 >
+                                    <option value=''>Selecciona un rol</option>
                                     <option value='ADMIN'>Administrador</option>
                                     <option value='EMPLOYEE'>Empleado</option>
                                 </select>

@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react'
-import { listTools } from '../services/ToolService'
+import { listTools } from '../../services/ToolService'
 import { useNavigate } from 'react-router-dom';
 
 const ListToolsComponent = () => {
@@ -18,6 +18,10 @@ const ListToolsComponent = () => {
 
     function navigateToCreateTool() {
         navigate('/create-tool');
+    }
+
+    function navigateToManageWarehouse() {
+        navigate('/delete-tool');
     }
 
     function renderState(state) {
@@ -69,6 +73,7 @@ const ListToolsComponent = () => {
 <div className="container" style={{ marginTop: '60px' }}>
         <h2>Lista de Herramientas</h2>
         <button className="btn btn-primary mb-2" onClick={navigateToCreateTool}>Agregar Herramienta</button>
+        <button className="btn btn-primary mb-2" onClick={navigateToManageWarehouse} style={{ marginLeft: '10px'}}>Administrar Bodega</button>
         <table className="table table-dark table-bordered">
             <thead className="thead-dark">
                 <tr>

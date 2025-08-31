@@ -51,8 +51,9 @@ const HeaderComponent = () => {
               </button>
               <div className="collapse navbar-collapse" id="nav1">
                 <ul className="navbar-nav me-auto">
-                  <li className="nav-item"><a className="nav-link active" onClick={navigateToHome}>Inicio</a></li>
-                  <li className="nav-item"><a className="nav-link" onClick={navigatetoListTools}>Catálogo</a></li>
+                  <li className="nav-item"><a className="nav-link active" onClick={navigateToHome} href="">Inicio</a></li>
+                  <li className="nav-item"><a className="nav-link" onClick={navigatetoListTools} href="">Catálogo</a></li>
+                  
                   <li className="nav-item"><a className="nav-link" href="#">Iniciar Sesión</a></li>
                 </ul>
                 <button className="btn btn-accent" onClick={navigateToCreateLoan}>Reservar</button>
