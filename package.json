@@ -10,8 +10,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fdograph/rut-utilities": "^1.4.0",
     "axios": "^1.11.0",
     "bootstrap": "^5.3.8",
+    "bootstrap5-autocomplete": "^1.1.40",
     "react": "^19.1.1",
     "react-bootstrap": "^2.10.10",
     "react-dom": "^19.1.1",

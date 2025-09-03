@@ -37,7 +37,7 @@ const ListToolsComponent = () => {
         default:
             return <span>{state}</span>;
         }
-                    }
+    }
 
     function renderCategory(category) {
     switch (category) {

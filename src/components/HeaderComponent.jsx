@@ -27,6 +27,9 @@ const HeaderComponent = () => {
     function navigateToHome() {
         navigate('/');
     }
+    function navigateToReturnLoan() {
+        navigate('/return-loan');
+    }
     return (
         <div>
           <nav className="navbar navbar-expand-lg navbar-dark" style={{ background: "#1E5AA6" }}>
@@ -57,6 +60,7 @@ const HeaderComponent = () => {
                   <li className="nav-item"><a className="nav-link" href="#">Iniciar Sesión</a></li>
                 </ul>
                 <button className="btn btn-accent" onClick={navigateToCreateLoan}>Reservar</button>
+                <button className="btn btn-accent" onClick={navigateToReturnLoan} style={{ marginLeft:'10px'}}>Devolver</button>
               </div>
             </div>
           </nav>

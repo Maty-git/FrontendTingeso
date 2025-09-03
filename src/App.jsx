@@ -8,6 +8,7 @@ import CreateUserComponent from './components/User/CreateUserComponent';
 import CreateLoanComponent from './components/Loan/CreateLoanComponent';
 import HomeComponent from './components/Pages/HomeComponent';
 import DeleteToolComponent from './components/Tool/DeleteToolComponent';
+import ReturnLoanComponent from './components/Loan/ReturnLoanComponent';
 
 function App() {
 
@@ -17,18 +18,13 @@ function App() {
         <HeaderComponent />
         <Routes>
           <Route path="/" element={<HomeComponent />} />
-
-
           <Route path="/tools" element={<ListToolsComponent />} />
           <Route path="/create-tool" element={<CreateToolComponent />} />
           <Route path="/delete-tool" element={<DeleteToolComponent/>}/>
-
           <Route path="/create-client" element={<CreateClientComponent />} />
-
           <Route path="/create-user" element={<CreateUserComponent />} />
-
           <Route path="/create-loan" element={<CreateLoanComponent />} />
-
+          <Route path="/return-loan" element={<ReturnLoanComponent />} />
         </Routes>
       </BrowserRouter>
     </>

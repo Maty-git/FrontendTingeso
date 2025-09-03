@@ -38,7 +38,7 @@ const CreateToolComponent = () => {
 
     return (
         <div>
-            <div className="d-grid gap-2 col-6 mx-auto" style={{ marginTop: '100px' }}>
+            <div className="d-grid gap-2 col-6 mx-auto" style={{ marginTop: '10px' }}>
                 <button type="button" className="btn btn-outline-primary" onClick={goBack}>VOLVER A LISTADO DE HERRAMIENTAS</button>
             </div>
             <div className='container'>
@@ -100,6 +100,23 @@ const CreateToolComponent = () => {
                                     </select>
                                 </div>
                                 <div className='form-group mb-2'>
+                                    <label className='form-label'>Tarifa Reemplazo:</label>
+                                    <input
+                                        type='text'
+                                        placeholder='Valor de Reemplazo'
+                                        name='replacementValue'
+                                        value={replacementValue}
+                                        className='form-control'
+                                        onFocus={() => replacementValue === 0 && setReplacementValue('')}
+                                        onChange={(e) => {
+                                            const value = e.target.value;
+                                            if (/^\d*$/.test(value)) {
+                                                setReplacementValue(value === '' ? 0 : Number(value));
+                                            }
+                                        }}
+                                    />
+                                </div>
+                                <div className='form-group mb-2'>
                                     <label className='form-label'>Cantidad:</label>
                                     <input
     type='text'
@@ -151,23 +168,7 @@ const CreateToolComponent = () => {
     }}
 />
                                 </div>
-                                <div className='form-group mb-2'>
-                                    <label className='form-label'>Tarifa Reemplazo:</label>
-                                    <input
-    type='text'
-    placeholder='Valor de Reemplazo'
-    name='replacementValue'
-    value={replacementValue}
-    className='form-control'
-    onFocus={() => replacementValue === 0 && setReplacementValue('')}
-    onChange={(e) => {
-        const value = e.target.value;
-        if (/^\d*$/.test(value)) {
-            setReplacementValue(value === '' ? 0 : Number(value));
-        }
-    }}
-/>
-                                </div>
+                                
                                 <button type="submit" className="btn btn-success">Guardar</button>
                             </form>
                         </div>

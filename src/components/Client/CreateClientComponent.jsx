@@ -1,16 +1,32 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { createClient } from '../../services/ClientService'
-
+import { validateRut, formatRut } from "@fdograph/rut-utilities";
 
 
 const CreateClientComponent = () => {
 
     const [name, setName] = useState('')
     const [rut, setRut] = useState('')
+    const [isValid, setIsValid] = useState(true);
     const [phoneNumber, setPhoneNumber] = useState('')
     const [email, setEmail] = useState('')
     const status = 'ACTIVE'
+
+    const handleChange = (e) => {
+    const value = e.target.value;
+    setRut(value);
+
+    // Validación inmediata
+    setIsValid(validateRut(value));
+    };
+
+    const handleBlur = () => {
+    // Al salir del input, lo formatea
+    if (isValid) {
+      setRut(formatRut(rut));
+    }
+  }; 
 
     const navigate = useNavigate();
 
@@ -51,13 +67,16 @@ const CreateClientComponent = () => {
                             <div className='form-group mb-2'>
                                 <label className='form-label'>RUT:</label>
                                 <input
-                                    type='text'
-                                    placeholder='RUT del Cliente'
-                                    name='rut'
+                                    type="text"
                                     value={rut}
-                                    className='form-control'
-                                    onChange={(e) => setRut(e.target.value)}
+                                    onChange={handleChange}
+                                    onBlur={handleBlur}
+                                    className={`form-control ${!isValid ? "is-invalid" : ""}`}
+                                    placeholder="Ingrese RUT del Cliente"
+                                    name="rut"
+                                    required
                                 />
+                                {!isValid && <div className="invalid-feedback">RUT inválido</div>}
                             </div>
                             <div className='form-group mb-2'>
                                 <label className='form-label'>Teléfono:</label>
