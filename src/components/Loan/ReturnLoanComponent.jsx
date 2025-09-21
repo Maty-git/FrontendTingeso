@@ -1,83 +1,96 @@
-import React, { useEffect, useState } from 'react'
-import { allLoans } from '../../services/LoanService'
-import { all } from 'axios';
+import React, { useEffect, useState } from 'react';
+import { allLoans } from '../../services/LoanService';
 
-const ReturnLoanComponent = () => {
+const LoanListComponent = () => {
+    const [loans, setLoans] = useState([]);
+    const [search, setSearch] = useState('');
 
-    const [loans, setLoans] = React.useState([]);
-    const [search, setSearch] = useState('')
-    
+    // 🔹 Cargar los préstamos al montar el componente
     useEffect(() => {
-        allLoans().then((response) => {
+        allLoans()
+        .then((response) => {
             setLoans(response.data);
-            console.log(response.data);
-        }).catch((error) => {
+            console.log("Préstamos:", response.data);
+        })
+        .catch((error) => {
             console.error('Error al listar préstamos:', error);
         });
     }, []);
 
+    // 🔹 Barra de búsqueda: filtrar por clientRut
     const searcher = (e) => {
-        setSearch(e.target.value)
-        console.log(e.target.value)
-    }
+        setSearch(e.target.value);
+    };
 
-    let results = []
-    if(!search){
-        results = loans
-    } else {
-        results = loans.filter((dato) =>
-            dato.client.rut.toLowerCase().includes(search.toLowerCase())
-        )
-    }
+    // 🔹 Aplicar filtro
+    const results = !search
+        ? loans
+        : loans.filter((loan) =>
+            loan.clientRut.toLowerCase().includes(search.toLowerCase())
+        );
 
+    // 🔹 Formatear fecha
     const formatDateTime = (isoString) => {
-        if (!isoString) return "—"; // si viene null
+        if (!isoString) return '—';
         const date = new Date(isoString);
-        return new Intl.DateTimeFormat("es-CL", {
-            day: "2-digit",
-            month: "2-digit",
-            year: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
+        return new Intl.DateTimeFormat('es-CL', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
         }).format(date);
     };
 
     return (
         <div className="container mt-3">
-            <h2 className="text-center mb-3">Devolución de Préstamos</h2>
-            <input value={search} onChange={searcher} type="text" placeholder='Busqueda por Rut' className='form-control' />
-            <table className="table table-bordered" style={{ marginTop: '10px' }}>
-                <thead>
-                    <tr>
-                        <th>Nombre del Cliente</th>
-                        <th>Rut del Cliente</th>
-                        <th>Herramienta</th>
-                        <th>Fecha de Préstamo</th>
-                        <th>Fecha de Retorno Pactada</th>
-                        <th>Estado</th>
-                        <th>Costo por Retraso</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                {results.map((loan) => (
-                    <tr key={loan.id}>
-                    <td>{loan.client.name}</td> 
-                    <td>{loan.client.rut}</td> 
-                    <td>{loan.tool.name}</td>  
-                    <td>{formatDateTime(loan.deliveryDate)}</td> 
-                    <td>{formatDateTime(loan.returnDateExpected)}</td>   
-                    <td>{loan.status}</td>      
-                    <td>{loan.repairCost}</td>  
-                    <td>
-                        <button className="btn btn-primary btn-sm">Devolver</button>
-                    </td>
-                    </tr>
-                ))}
-                </tbody>
-            </table>
-        </div>
-    )
-}
+        <h2 className="text-center mb-3">Listado de Préstamos</h2>
 
-export default ReturnLoanComponent
+        {/* 🔹 Barra de búsqueda */}
+        <input
+            type="text"
+            value={search}
+            onChange={searcher}
+            placeholder="Buscar por RUT de cliente"
+            className="form-control mb-3"
+        />
+
+        {/* 🔹 Tabla */}
+        <table className="table table-bordered table-striped">
+            <thead className="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>RUT Cliente</th>
+                <th>Nombre Cliente</th>
+                <th>Herramienta</th>
+                <th>Fecha de Préstamo</th>
+                <th>Fecha de Retorno Pactada</th>
+                <th>RUT del Usuario</th>
+                <th>Acciones</th>
+            </tr>
+            </thead>
+            <tbody>
+            {results.map((loan) => (
+                <tr key={loan.id}>
+                <td>{loan.id}</td>
+                <td>{loan.clientRut}</td>
+                <td>{loan.clientName}</td>
+                <td>{loan.toolName}</td>
+                <td>{formatDateTime(loan.deliveryDate)}</td>
+                <td>{formatDateTime(loan.returnDateExpected)}</td>
+                <td>{loan.userRut}</td>
+                <td>
+                <button
+                    className="btn btn-success btn-sm"
+                    onClick={() => handleReturn(loan.id)}
+                    >
+                    Confirmar devolución
+                    </button>
+                </td>
+                </tr>
+            ))}
+            </tbody>
+        </table>
+        </div>
+    );
+};
+
+export default LoanListComponent;

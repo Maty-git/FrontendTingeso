@@ -2,18 +2,23 @@ import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { createLoan } from '../../services/LoanService'
 import { getTools } from '../../services/ToolService'
+import { useKeycloak } from '@react-keycloak/web'
+import { getAllRuts } from '../../services/ClientService';
+
 
 const CreateLoanComponent = () => {
     const [returnDateExpected, setReturnDateExpected] = useState('')
     const [quantity, setQuantity] = useState(1)
     const [status, setStatus] = useState('ACTIVE')
     const [clientRut, setClientRut] = useState('')
-    const [userRut, setUserRut] = useState('')
     const [toolId, setToolId] = useState(0)
-
+    const { keycloak } = useKeycloak(); //
+    
+    const rutUser = keycloak?.tokenParsed?.rut;
 
 
     const [tools, setTools] = useState([])
+    const [ruts, setRuts] = useState([])
     const [search, setSearch] = useState('')
 
     const searcher = (e) => {
@@ -22,23 +27,24 @@ const CreateLoanComponent = () => {
     }
 
     let results = []
-    if(!search){
-        results = tools
-    } else {
-        results = tools.filter((dato) => 
-            dato.name.toLowerCase().includes(search.toLowerCase())
-        )
+        if(!search){
+            results = tools
+        } else {
+            results = tools.filter((dato) => 
+                dato.name.toLowerCase().includes(search.toLowerCase())
+            )
     }
 
 
 
     useEffect(() => {
-        getTools().then((response) => {
-            setTools(response.data)
-            console.log(response.data)
-        }).catch((error) => {
-            console.error('Error al listar herramientas:', error)
-        })
+        getTools()
+        .then((response) => setTools(response.data))
+        .catch((error) => console.error('Error al listar herramientas:', error))
+        console.log(tools)
+        getAllRuts()
+        .then((response) => setRuts(response.data))
+        .catch((error) => console.error('Error al listar clientes:', error))
     }, [])
 
     
@@ -48,31 +54,44 @@ const CreateLoanComponent = () => {
     const saveLoan = async (e) => {
         e.preventDefault()
 
-        const loan = {
-        returnDateExpected,
-        quantity,
-        status,
-        clientRut,
-        userRut,
-        toolId
+        // Validación: verificar que el rut ingresado esté en la lista
+        if (!ruts.includes(clientRut)) {
+            alert("❌ El RUT ingresado no está registrado como cliente.")
+            return // detenemos el flujo, no crea el préstamo
+        }
+        if (!tools.some(tool => tool.id === toolId)) {
+            alert("❌ Debe seleccionar una herramienta de la lista.");
+            return; // detenemos el flujo
         }
 
 
+        const loan = {
+            returnDateExpected,
+            quantity,
+            status,
+            clientRut,
+            userRut: rutUser, // ✅ directo desde keycloak
+            toolId
+        }
+
         console.log(loan)
 
-        createLoan(loan).then((response) => {
+        createLoan(loan)
+            .then((response) => {
             console.log(response.data)
             setReturnDateExpected('')
             setQuantity(1)
             setStatus('ACTIVE')
             setClientRut('')
-            setUserRut('')
             setToolId(0)
-
-        }).catch((error) => {
+            })
+            .catch((error) => {
             console.error('Error al crear préstamo:', error)
-        })
-    }
+            })
+            navigate('/create-loan')
+}
+
+
 
     return (
         <div className='container'>
@@ -120,15 +139,6 @@ const CreateLoanComponent = () => {
                                     value={clientRut}
                                     className='form-control'
                                     onChange={(e) => setClientRut(e.target.value)}
-                                />
-                            </div>
-                            <div className='form-group mb-2'>
-                                <label className='form-label'>RUT del Usuario:</label>
-                                <input
-                                    type='text'
-                                    value={userRut}
-                                    className='form-control'
-                                    onChange={(e) => setUserRut(e.target.value)}
                                 />
                             </div>
                             <div className='form-group mb-2'>

@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getTools, deleteTool } from '../../services/ToolService'
+import { useKeycloak } from '@react-keycloak/web';
 
 // Importamos la librería de autocompletado
 import Autocomplete from 'bootstrap5-autocomplete'
@@ -10,8 +11,10 @@ const DeleteToolComponent = () => {
     const [tools, setTools] = useState([])       // Lista de herramientas
     const autocompleteRef = useRef(null)         // Referencia al input de autocomplete
     const [search, setSearch] = React.useState('')
+    const { keycloak } = useKeycloak(); //
 
     const navigate = useNavigate()
+    const rutUser = keycloak?.tokenParsed?.rut;
 
     // 1️⃣ Cargar herramientas desde el backend
     useEffect(() => {
@@ -57,7 +60,7 @@ const DeleteToolComponent = () => {
         return
         }
 
-        deleteTool(toolId)
+        deleteTool(toolId,rutUser)
         .then(() => {
             // Quitamos del listado local sin recargar la página
             setTools(tools.filter((t) => t.id !== toolId))
@@ -88,7 +91,7 @@ const DeleteToolComponent = () => {
                     <input
                     type='text'
                     className='form-control autocomplete'
-                    ref={autocompleteRef}   // conectamos el input con autocomplete
+                    ref={autocompleteRef}
                     placeholder='Escribe el nombre o ID de la herramienta'
                     />
                 </div>

@@ -1,9 +1,11 @@
 import React, { useState } from 'react'
 import { createTool } from '../../services/ToolService'
 import { useNavigate } from 'react-router-dom';
+import { useKeycloak } from '@react-keycloak/web'; // 👈 importamos el hook de keycloak
 
 const CreateToolComponent = () => {
     const navigate = useNavigate();
+    const { keycloak } = useKeycloak(); // 👈 obtenemos keycloak
 
     const [name, setName] = useState('')
     const [category, setCategory] = useState('')
@@ -12,13 +14,30 @@ const CreateToolComponent = () => {
     const [rentDailyRate, setRentDailyRate] = useState(0)
     const [lateFee, setLateFee] = useState(0)
     const [replacementValue, setReplacementValue] = useState(0)
+    const [repairCost, setRepairCost] = useState(0)
 
-    function saveTool(e){
+    // 👉 obtenemos el rut desde el token de Keycloak
+    const rutUser = keycloak?.tokenParsed?.rut;
+
+    function saveTool(e) {
         e.preventDefault();
-        const tool = {name, category, state, quantity, rentDailyRate, lateFee, replacementValue}
-        console.log(tool);
-        
-        createTool(tool).then((response) => {   
+
+        const tool = { 
+            name, 
+            category, 
+            state, 
+            quantity, 
+            rentDailyRate, 
+            lateFee, 
+            replacementValue, 
+            repairCost 
+        };
+
+        console.log("Tool a guardar:", tool);
+        console.log("RUT del creador:", rutUser);
+
+        // 👉 pasamos el tool y rutUser al servicio
+        createTool(tool, rutUser).then((response) => {   
             console.log(response.data)
             setName('');
             setCategory('');
@@ -27,15 +46,16 @@ const CreateToolComponent = () => {
             setRentDailyRate(0);
             setLateFee(0);
             setReplacementValue(0);
+            setRepairCost(0);
         })
         .catch((error) => {
             console.log(error)
         });
     }
-    function goBack(){
+
+    function goBack() {
         navigate('/tools');
     }
-
     return (
         <div>
             <div className="d-grid gap-2 col-6 mx-auto" style={{ marginTop: '10px' }}>
@@ -164,6 +184,23 @@ const CreateToolComponent = () => {
         const value = e.target.value;
         if (/^\d*$/.test(value)) {
             setLateFee(value === '' ? 0 : Number(value));
+        }
+    }}
+/>
+                                </div>
+                                <div className='form-group mb-2'>
+                                    <label className='form-label'>Costo Reparación:</label>
+                                    <input
+    type='text'
+    placeholder='Costo de Reparación'
+    name='repairCost'
+    value={repairCost}
+    className='form-control'
+    onFocus={() => repairCost === 0 && setRepairCost('')}
+    onChange={(e) => {
+        const value = e.target.value;
+        if (/^\d*$/.test(value)) {
+            setRepairCost(value === '' ? 0 : Number(value));
         }
     }}
 />

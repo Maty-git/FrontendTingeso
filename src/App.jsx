@@ -9,16 +9,34 @@ import CreateLoanComponent from './components/Loan/CreateLoanComponent';
 import HomeComponent from './components/Pages/HomeComponent';
 import DeleteToolComponent from './components/Tool/DeleteToolComponent';
 import ReturnLoanComponent from './components/Loan/ReturnLoanComponent';
+import { useKeycloak } from '@react-keycloak/web';
 
 function App() {
+  const {keycloak, initialized} = useKeycloak();
+  if(!initialized){
+    return <div>Cargando...</div>
+  }
+  const isLoggedIn = keycloak.authenticated;
+  const roles = keycloak.realmAccess?.roles || [];
+  const PrivateRoute =({element,rolesAllowed})=> {
+    if (!isLoggedIn) {
+      keycloak.login();
+      return null;
+    }
+    if (rolesAllowed && !rolesAllowed.some(role => roles.includes(role))) {
+      return <div>Acceso no autorizado</div>;
+    }
+    return element;
+  }
+
 
   return (
     <>
       <BrowserRouter>
         <HeaderComponent />
         <Routes>
-          <Route path="/" element={<HomeComponent />} />
-          <Route path="/tools" element={<ListToolsComponent />} />
+          <Route path="/" element={<PrivateRoute element={<HomeComponent />} rolesAllowed={["ADMIN","EMPLOYEE"]} />}/>
+          <Route path="/tools" element={<PrivateRoute element={<ListToolsComponent />} rolesAllowed={["ADMIN"]} />}/>
           <Route path="/create-tool" element={<CreateToolComponent />} />
           <Route path="/delete-tool" element={<DeleteToolComponent/>}/>
           <Route path="/create-client" element={<CreateClientComponent />} />
