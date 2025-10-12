@@ -79,6 +79,10 @@ const CreateLoanComponent = () => {
         createLoan(loan)
             .then((response) => {
             console.log(response.data)
+            if(response.data === false) {
+                alert("El cliente ya tiene un préstamo activo de esta herramienta, o el cliente esta reestrigido.")
+                return
+            }
             setReturnDateExpected('')
             setQuantity(1)
             setStatus('ACTIVE')

@@ -21,7 +21,7 @@ const ListToolsComponent = () => {
     }
 
     function navigateToManageWarehouse() {
-        navigate('/delete-tool');
+        navigate('/manage-tool');
     }
 
     function renderState(state) {

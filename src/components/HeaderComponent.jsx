@@ -12,6 +12,10 @@ const HeaderComponent = () => {
   function navigateToHome() { navigate('/'); }
   function navigateToReturnLoan() { navigate('/return-loan'); }
   function navigateToCreateClient() { navigate('/create-client'); }
+  function navigateToReviewTool() { navigate('/review-tools'); }
+  function navigateToDebts() { navigate('/debts'); }
+  function navigateToToolListWithHistory() { navigate('/tools-history'); }
+  function navigateToClientsWithLateDebts() { navigate('/clients-late-debts'); }
   return (
     <div>
       <nav className="navbar navbar-expand-lg navbar-dark" style={{ background: "#1E5AA6" }}>
@@ -44,6 +48,18 @@ const HeaderComponent = () => {
               </li>
               <li className="nav-item">
                 <a className="nav-link" onClick={navigateToCreateClient} href="#">Crear Cliente</a>
+              </li>
+              <li className="nav-item">
+                <a className="nav-link" onClick={navigateToReviewTool} href="#">Revisar Herramientas</a>
+              </li>
+              <li className="nav-item">
+                <a className="nav-link" onClick={navigateToDebts} href="#">Deudas</a>
+              </li>
+              <li className="nav-item">
+                <a className="nav-link" onClick={navigateToToolListWithHistory} href="#">Historial Herramienta</a>
+              </li>
+              <li className="nav-item">
+                <a className="nav-link" onClick={navigateToClientsWithLateDebts} href="#">Clientes con Deuda Retraso</a>
               </li>
             </ul>
 
