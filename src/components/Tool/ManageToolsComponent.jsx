@@ -82,68 +82,111 @@ const ManageToolsComponent = () => {
   );
 
   return (
-    <div className="container" style={{ marginTop: "60px" }}>
-      <h2>Administrar Herramientas</h2>
+    <div className="container-fluid py-4">
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h2 className="h3 mb-1" style={{ color: 'var(--bs-primary)' }}>
+            <i className="fas fa-cogs me-2"></i>
+            Administrar Herramientas
+          </h2>
+          <p className="text-muted mb-0">Gestiona el inventario y configuración de herramientas</p>
+        </div>
+        <div className="text-end">
+          <span className="badge bg-primary fs-6 px-3 py-2">
+            {filteredTools.length} herramienta{filteredTools.length !== 1 ? 's' : ''}
+          </span>
+        </div>
+      </div>
 
       {/* Barra de búsqueda */}
-      <input
-        type="text"
-        className="form-control mb-3"
-        placeholder="Buscar herramienta por nombre..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
+      <div className="card card-custom mb-4">
+        <div className="card-body">
+          <div className="row align-items-center">
+            <div className="col-md-8">
+              <input
+                type="text"
+                className="form-control form-control-custom"
+                placeholder="Buscar herramienta por nombre..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
+            <div className="col-md-4 text-end">
+              <small className="text-muted">
+                {search ? `${filteredTools.length} resultado${filteredTools.length !== 1 ? 's' : ''} encontrado${filteredTools.length !== 1 ? 's' : ''}` : 'Mostrando todas las herramientas'}
+              </small>
+            </div>
+          </div>
+        </div>
+      </div>
 
-      <table className="table table-dark table-bordered">
-        <thead className="thead-dark">
-          <tr>
-            <th>Nombre</th>
-            <th>Categoría</th>
-            <th>Estado</th>
-            <th>Valor Arriendo</th>
-            <th>Valor Multa</th>
-            <th>Valor Reposición</th>
-            <th>Cantidad</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredTools.length > 0 ? (
-            filteredTools.map((tool, index) => (
-              <tr key={index}>
-                <td>{tool.name}</td>
-                <td>{renderCategory(tool.category)}</td>
-                <td>{renderState(tool.state)}</td>
-                <td>{tool.rentDailyRate}</td>
-                <td>{tool.lateFee}</td>
-                <td>{tool.replacementValue}</td>
-                <td>{tool.count}</td>
-                <td>
-                  <button
-                    className="btn btn-warning btn-sm me-2"
-                    onClick={() => handleUpdate(tool)}
-                  >
-                    Actualizar
-                  </button>
-                  <button
-                    className="btn btn-danger btn-sm"
-                    onClick={() => handleDelete(tool)}
-                  >
-                    Eliminar
-                  </button>
-              
-                </td>
+      <div className="card card-custom">
+        <div className="card-body p-0">
+          <table className="table table-custom mb-0">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Categoría</th>
+                <th>Estado</th>
+                <th>Valor Arriendo</th>
+                <th>Valor Multa</th>
+                <th>Valor Reposición</th>
+                <th>Cantidad</th>
+                <th>Acciones</th>
               </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan="8" className="text-center">
-                No se encontraron herramientas
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+            </thead>
+            <tbody>
+              {filteredTools.length > 0 ? (
+                filteredTools.map((tool, index) => (
+                  <tr key={index}>
+                    <td className="fw-semibold">{tool.name}</td>
+                    <td>{renderCategory(tool.category)}</td>
+                    <td>{renderState(tool.state)}</td>
+                    <td>${tool.rentDailyRate?.toLocaleString('es-CL') || '0'}</td>
+                    <td>${tool.lateFee?.toLocaleString('es-CL') || '0'}</td>
+                    <td>${tool.replacementValue?.toLocaleString('es-CL') || '0'}</td>
+                    <td>
+                      <span className="badge bg-info">{tool.count}</span>
+                    </td>
+                    <td>
+                      <div className="btn-group" role="group">
+                        <button
+                          className="btn btn-warning btn-sm"
+                          onClick={() => handleUpdate(tool)}
+                          title="Actualizar herramienta"
+                        >
+                          <i className="fas fa-edit me-1"></i>
+                          Actualizar
+                        </button>
+                        <button
+                          className="btn btn-danger btn-sm"
+                          onClick={() => handleDelete(tool)}
+                          title="Eliminar herramienta"
+                        >
+                          <i className="fas fa-trash me-1"></i>
+                          Eliminar
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="8" className="text-center py-5">
+                    <div className="text-muted">
+                      <i className="fas fa-search fa-3x mb-3 d-block"></i>
+                      <h5>No se encontraron herramientas</h5>
+                      <p className="mb-0">
+                        {search ? 'Intenta con otros términos de búsqueda' : 'No hay herramientas registradas en el sistema'}
+                      </p>
+                    </div>
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 };

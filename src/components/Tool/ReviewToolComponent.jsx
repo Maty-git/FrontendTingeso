@@ -59,49 +59,89 @@ function ReviewToolComponent() {
   };
 
   return (
-    <div className="container mt-3">
-      <h2 className="text-center mb-3">Herramientas en reparación</h2>
-      <table className="table table-bordered table-striped">
-        <thead className="table-dark">
-          <tr>
-            <th>ID</th>
-            <th>Nombre</th>
-            <th>Categoría</th>
-            <th>Estado</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {tools.map((tool) => (
-            <tr key={tool.id}>
-              <td>{tool.id}</td>
-              <td>{tool.name}</td>
-              <td>{tool.category}</td>
-              <td>{tool.state}</td>
-              <td>
-                <button
-                  className="btn btn-success btn-sm me-2"
-                  onClick={() => handleAction(tool, "repairWithCost")}
-                >
-                  Reparar con cobro
-                </button>
-                <button
-                  className="btn btn-warning btn-sm me-2"
-                  onClick={() => handleAction(tool, "repairWithoutCost")}
-                >
-                  Reparar sin cobro
-                </button>
-                <button
-                  className="btn btn-danger btn-sm"
-                  onClick={() => handleAction(tool, "discard")}
-                >
-                  Dar de baja
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div className="container-fluid py-4">
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h2 className="h3 mb-1" style={{ color: 'var(--bs-primary)' }}>
+            <i className="fas fa-wrench me-2"></i>
+            Herramientas en Reparación
+          </h2>
+          <p className="text-muted mb-0">Gestiona las herramientas que requieren revisión y reparación</p>
+        </div>
+        <div className="text-end">
+          <span className="badge bg-warning fs-6 px-3 py-2">
+            {tools.length} herramienta{tools.length !== 1 ? 's' : ''} en reparación
+          </span>
+        </div>
+      </div>
+
+      <div className="card card-custom">
+        <div className="card-body p-0">
+          <table className="table table-custom mb-0">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Categoría</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {tools.length > 0 ? tools.map((tool) => (
+                <tr key={tool.id}>
+                  <td>
+                    <span className="badge bg-secondary">#{tool.id}</span>
+                  </td>
+                  <td className="fw-semibold">{tool.name}</td>
+                  <td>{tool.category}</td>
+                  <td>
+                    <span className="badge bg-warning">EN REPARACIÓN</span>
+                  </td>
+                  <td>
+                    <div className="btn-group" role="group">
+                      <button
+                        className="btn btn-success btn-sm"
+                        onClick={() => handleAction(tool, "repairWithCost")}
+                        title="Reparar con cobro al cliente"
+                      >
+                        <i className="fas fa-tools me-1"></i>
+                        Con Cobro
+                      </button>
+                      <button
+                        className="btn btn-warning btn-sm"
+                        onClick={() => handleAction(tool, "repairWithoutCost")}
+                        title="Reparar sin cobro al cliente"
+                      >
+                        <i className="fas fa-wrench me-1"></i>
+                        Sin Cobro
+                      </button>
+                      <button
+                        className="btn btn-danger btn-sm"
+                        onClick={() => handleAction(tool, "discard")}
+                        title="Dar de baja la herramienta"
+                      >
+                        <i className="fas fa-trash me-1"></i>
+                        Dar de Baja
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              )) : (
+                <tr>
+                  <td colSpan="5" className="text-center py-5">
+                    <div className="text-muted">
+                      <i className="fas fa-check-circle fa-3x mb-3 d-block"></i>
+                      <h5>¡Excelente!</h5>
+                      <p className="mb-0">No hay herramientas en reparación en este momento</p>
+                    </div>
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 }
