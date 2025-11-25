@@ -1,0 +1,6 @@
+# Usamos la imagen oficial de Nginx
+FROM nginx:latest
+
+# Copiamos TU configuración de balanceador al lugar correcto dentro del contenedor
+# Esto reemplaza el archivo nginx.conf por defecto
+COPY nginx-frontend.conf /etc/nginx/nginx.conf

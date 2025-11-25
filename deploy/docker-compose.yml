@@ -110,12 +110,14 @@ services:
 
   # === FRONTEND LOAD BALANCER (Nginx) ===
   nginx-frontend:
-    image: nginx:latest
+    # EN LUGAR DE 'image: nginx:latest', USAMOS BUILD:
+    build:
+      context: .
+      dockerfile: Dockerfile.nginx
     container_name: nginx-frontend
     ports:
       - "8070:80"
-    volumes:
-      - ./nginx-frontend.conf:/etc/nginx/nginx.conf:ro
+    # 🗑️ IMPORTANTE: BORRA LA SECCIÓN 'volumes' DE AQUÍ
     depends_on:
       - frontend1
       - frontend2
