@@ -93,27 +93,18 @@ services:
   frontend1:
     image: matydocker1/frontend:latest
     container_name: frontend1
-    volumes:
-      # INYECTAMOS LA CONFIGURACIÓN AQUÍ
-      - ./nginx-app.conf:/etc/nginx/conf.d/default.conf:ro
     networks:
       - frontend-network
 
   frontend2:
     image: matydocker1/frontend:latest
     container_name: frontend2
-    volumes:
-      # INYECTAMOS LA CONFIGURACIÓN AQUÍ
-      - ./nginx-app.conf:/etc/nginx/conf.d/default.conf:ro
     networks:
       - frontend-network
 
   frontend3:
     image: matydocker1/frontend:latest
     container_name: frontend3
-    volumes:
-      # INYECTAMOS LA CONFIGURACIÓN AQUÍ
-      - ./nginx-app.conf:/etc/nginx/conf.d/default.conf:ro
     networks:
       - frontend-network
 
