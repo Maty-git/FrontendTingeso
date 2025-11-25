@@ -1,0 +1,150 @@
+version: "3.8"
+
+services:
+  # === DATABASE (PostgreSQL 17.6) ===
+  postgres:
+    image: postgres:17.6
+    container_name: postgres-db
+    restart: always
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - backend-network
+
+  # === KEYCLOAK 24.0 ===
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0
+    container_name: keycloak
+    command: start-dev
+    environment:
+      KC_DB: postgres
+      KC_DB_URL_HOST: postgres
+      KC_DB_URL_DATABASE: ${DB_NAME}
+      KC_DB_USERNAME: ${DB_USERNAME}
+      KC_DB_PASSWORD: ${DB_PASSWORD}
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+    ports:
+      - "9090:8080"
+    depends_on:
+      - postgres
+    networks:
+      - backend-network
+
+  # === BACKEND INSTANCES (Spring Boot) ===
+  backend1:
+    image: matydocker1/backend:latest
+    container_name: backend1
+    environment:
+      - SPRING_DATASOURCE_URL=${DB_URL}
+      - SPRING_DATASOURCE_USERNAME=${DB_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
+    depends_on:
+      - postgres
+    networks:
+      - backend-network
+
+  backend2:
+    image: matydocker1/backend:latest
+    container_name: backend2
+    environment:
+      - SPRING_DATASOURCE_URL=${DB_URL}
+      - SPRING_DATASOURCE_USERNAME=${DB_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
+    depends_on:
+      - postgres
+    networks:
+      - backend-network
+
+  backend3:
+    image: matydocker1/backend:latest
+    container_name: backend3
+    environment:
+      - SPRING_DATASOURCE_URL=${DB_URL}
+      - SPRING_DATASOURCE_USERNAME=${DB_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
+    depends_on:
+      - postgres
+    networks:
+      - backend-network
+
+  # === BACKEND LOAD BALANCER (Nginx) ===
+  nginx-backend:
+    image: nginx:latest
+    container_name: nginx-backend
+    ports:
+      - "8090:80"
+    volumes:
+      - ./nginx-backend.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - backend1
+      - backend2
+      - backend3
+    networks:
+      - backend-network
+
+  # === FRONTEND INSTANCES (React) ===
+  frontend1:
+    image: matydocker1/frontend:latest
+    container_name: frontend1
+    networks:
+      - frontend-network
+
+  frontend2:
+    image: matydocker1/frontend:latest
+    container_name: frontend2
+    networks:
+      - frontend-network
+
+  frontend3:
+    image: matydocker1/frontend:latest
+    container_name: frontend3
+    networks:
+      - frontend-network
+
+  # === FRONTEND LOAD BALANCER (Nginx) ===
+  nginx-frontend:
+    image: nginx:latest
+    container_name: nginx-frontend
+    ports:
+      - "8070:80"
+    volumes:
+      - ./nginx-frontend.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - frontend1
+      - frontend2
+      - frontend3
+    networks:
+      - frontend-network
+  # === JENKINS SERVER ===
+  jenkins:
+    # 🚨 CAMBIO CLAVE: Usa 'build' en lugar de 'image'
+    build:
+      context: . 
+      dockerfile: Dockerfile.jenkins 
+    container_name: jenkins
+    user: root # Necesario para interactuar con el socket
+    privileged: true
+    ports:
+      - "8081:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - backend-network
+
+# === NETWORKS & VOLUMES ===
+networks:
+  frontend-network:
+  backend-network:
+
+volumes:
+  postgres_data:
+  jenkins_home:
