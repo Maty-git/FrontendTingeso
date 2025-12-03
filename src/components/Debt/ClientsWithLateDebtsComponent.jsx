@@ -22,9 +22,14 @@ const ClientsWithLateDebtsComponent = () => {
   };
 
   const filteredClients = clients.filter(
-    (c) =>
-      c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      c.rut.toLowerCase().includes(searchTerm.toLowerCase())
+    (c) => {
+      const normalizedSearch = searchTerm.toLowerCase().replace(/[\.\-]/g, '');
+      const normalizedRut = c.rut.toLowerCase().replace(/[\.\-]/g, '');
+      const normalizedName = c.name.toLowerCase();
+
+      return normalizedName.includes(searchTerm.toLowerCase()) ||
+        normalizedRut.includes(normalizedSearch);
+    }
   );
 
   return (
@@ -120,7 +125,7 @@ const ClientsWithLateDebtsComponent = () => {
                       <i className="fas fa-check-circle fa-3x mb-3 d-block"></i>
                       <h5>¡Excelente!</h5>
                       <p className="mb-0">
-                        {searchTerm || (startDate && endDate) 
+                        {searchTerm || (startDate && endDate)
                           ? 'No se encontraron clientes con atrasos con los filtros aplicados'
                           : 'No hay clientes con deudas atrasadas en el sistema'
                         }

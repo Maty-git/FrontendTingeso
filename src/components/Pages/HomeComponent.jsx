@@ -7,7 +7,6 @@ import { listUnpaidDebts } from '../../services/DebtService';
 const HomeComponent = () => {
   const navigate = useNavigate();
   const [stats, setStats] = useState({
-    totalTools: 0,
     activeLoans: 0,
     unpaidDebts: 0,
     availableTools: 0
@@ -28,7 +27,6 @@ const HomeComponent = () => {
         const debts = debtsRes.data || [];
 
         setStats({
-          totalTools: tools.length,
           activeLoans: loans.length,
           unpaidDebts: debts.length,
           availableTools: tools.filter(tool => tool.state === 'AVAILABLE').length
@@ -74,16 +72,9 @@ const HomeComponent = () => {
 
   const statCards = [
     {
-      title: 'Total Herramientas',
-      value: stats.totalTools,
-      icon: '🔧',
-      color: 'primary',
-      path: '/tools'
-    },
-    {
       title: 'Herramientas Disponibles',
       value: stats.availableTools,
-      icon: '✅',
+      icon: '🔧',
       color: 'success',
       path: '/tools'
     },
@@ -119,11 +110,11 @@ const HomeComponent = () => {
             </div>
             <div className="text-end">
               <small className="text-muted">
-                {new Date().toLocaleDateString('es-CL', { 
-                  weekday: 'long', 
-                  year: 'numeric', 
-                  month: 'long', 
-                  day: 'numeric' 
+                {new Date().toLocaleDateString('es-CL', {
+                  weekday: 'long',
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric'
                 })}
               </small>
             </div>
@@ -135,7 +126,7 @@ const HomeComponent = () => {
       <div className="row mb-4">
         {statCards.map((card, index) => (
           <div key={index} className="col-lg-3 col-md-6 mb-3">
-            <div 
+            <div
               className="dashboard-card h-100"
               style={{ cursor: 'pointer' }}
               onClick={() => navigate(card.path)}
@@ -167,7 +158,7 @@ const HomeComponent = () => {
         </div>
         {quickActions.map((action, index) => (
           <div key={index} className="col-lg-3 col-md-6 mb-3">
-            <div 
+            <div
               className="card card-custom h-100"
               style={{ cursor: 'pointer' }}
               onClick={() => navigate(action.path)}
@@ -198,7 +189,7 @@ const HomeComponent = () => {
             Gestión del Sistema
           </h3>
         </div>
-        
+
         {/* Gestión de Herramientas */}
         <div className="col-lg-4 col-md-6 mb-4">
           <div className="nav-group">
@@ -249,6 +240,9 @@ const HomeComponent = () => {
             </div>
             <a href="#" className="nav-group-item" onClick={(e) => { e.preventDefault(); navigate('/create-client'); }}>
               Nuevo Cliente
+            </a>
+            <a href="#" className="nav-group-item" onClick={(e) => { e.preventDefault(); navigate('/all-clients'); }}>
+              Clientes Registrados
             </a>
             <a href="#" className="nav-group-item" onClick={(e) => { e.preventDefault(); navigate('/debts'); }}>
               Deudas Pendientes

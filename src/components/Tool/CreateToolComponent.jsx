@@ -1,56 +1,56 @@
 import React, { useState } from 'react'
 import { createTool } from '../../services/ToolService'
 import { useNavigate } from 'react-router-dom';
-import { useKeycloak } from '@react-keycloak/web'; // 👈 importamos el hook de keycloak
+import { useKeycloak } from '@react-keycloak/web';
 
 const CreateToolComponent = () => {
     const navigate = useNavigate();
-    const { keycloak } = useKeycloak(); // 👈 obtenemos keycloak
+    const { keycloak } = useKeycloak();
 
     const [name, setName] = useState('')
     const [category, setCategory] = useState('')
-    const [state, setState] = useState('')
+    const [state, setState] = useState('AVAILABLE')
     const [quantity, setQuantity] = useState(0)
     const [rentDailyRate, setRentDailyRate] = useState(0)
     const [lateFee, setLateFee] = useState(0)
     const [replacementValue, setReplacementValue] = useState(0)
     const [repairCost, setRepairCost] = useState(0)
 
-    // 👉 obtenemos el rut desde el token de Keycloak
     const rutUser = keycloak?.tokenParsed?.rut;
 
     function saveTool(e) {
         e.preventDefault();
 
-        const tool = { 
-            name, 
-            category, 
-            state, 
-            quantity, 
-            rentDailyRate, 
-            lateFee, 
-            replacementValue, 
-            repairCost 
+        const tool = {
+            name,
+            category,
+            state,
+            quantity,
+            rentDailyRate,
+            lateFee,
+            replacementValue,
+            repairCost
         };
 
         console.log("Tool a guardar:", tool);
         console.log("RUT del creador:", rutUser);
 
-        // 👉 pasamos el tool y rutUser al servicio
-        createTool(tool, rutUser).then((response) => {   
+        createTool(tool, rutUser).then((response) => {
             console.log(response.data)
+            alert("✅ ¡Herramienta creada exitosamente!");
             setName('');
             setCategory('');
-            setState('');
+            setState('AVAILABLE');
             setQuantity(0);
             setRentDailyRate(0);
             setLateFee(0);
             setReplacementValue(0);
             setRepairCost(0);
         })
-        .catch((error) => {
-            console.log(error)
-        });
+            .catch((error) => {
+                console.log(error)
+                alert("❌ Error al crear la herramienta. Por favor, intente nuevamente.");
+            });
     }
 
     function goBack() {
@@ -84,7 +84,7 @@ const CreateToolComponent = () => {
                                         required
                                     />
                                 </div>
-                                
+
                                 <div className='mb-3'>
                                     <label className='form-label fw-semibold'>Categoría:</label>
                                     <select
@@ -110,22 +110,7 @@ const CreateToolComponent = () => {
                                     </select>
                                 </div>
                                 <div className='row'>
-                                    <div className='col-md-6 mb-3'>
-                                        <label className='form-label fw-semibold'>Estado:</label>
-                                        <select
-                                            name='state'
-                                            value={state}
-                                            className='form-control form-control-custom'
-                                            onChange={(e) => { setState(e.target.value); }}
-                                            required
-                                        >
-                                            <option value="">Seleccione un estado</option>
-                                            <option value="AVAILABLE">Disponible</option>
-                                            <option value="LOANED">Arrendada</option>
-                                            <option value="UNDER_REPAIR">En mantenimiento</option>
-                                            <option value="OUT_OF_SERVICE">Baja</option>
-                                        </select>
-                                    </div>
+                                    {/* State selection removed, defaults to AVAILABLE */}
                                     <div className='col-md-6 mb-3'>
                                         <label className='form-label fw-semibold'>Cantidad:</label>
                                         <input
@@ -146,7 +131,7 @@ const CreateToolComponent = () => {
                                         />
                                     </div>
                                 </div>
-                                
+
                                 <div className='row'>
                                     <div className='col-md-6 mb-3'>
                                         <label className='form-label fw-semibold'>Valor de Reemplazo:</label>
@@ -223,7 +208,7 @@ const CreateToolComponent = () => {
                                         />
                                     </div>
                                 </div>
-                                
+
                                 <div className='text-center mt-4'>
                                     <button type="button" className="btn btn-outline-secondary me-3" onClick={goBack}>
                                         <i className="fas fa-arrow-left me-2"></i>

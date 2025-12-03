@@ -15,19 +15,19 @@ const CreateClientComponent = () => {
     const status = 'ACTIVE'
 
     const handleChange = (e) => {
-    const value = e.target.value;
-    setRut(value);
+        const value = e.target.value;
+        setRut(value);
 
-    // Validación inmediata
-    setIsValid(validateRut(value));
+        // Validación inmediata
+        setIsValid(validateRut(value));
     };
 
     const handleBlur = () => {
-    // Al salir del input, lo formatea
-    if (isValid) {
-      setRut(formatRut(rut));
-    }
-  }; 
+        // Al salir del input, lo formatea
+        if (isValid) {
+            setRut(formatRut(rut));
+        }
+    };
 
     const navigate = useNavigate();
 
@@ -41,13 +41,12 @@ const CreateClientComponent = () => {
         }
 
         const client = { name, rut, phoneNumber, email, status }
-        
+
         try {
             const response = await createClient(client);
-            console.log('Cliente creado:', response.data);
-            
+
             showSuccessNotification('Cliente registrado exitosamente');
-            
+
             // Limpiar formulario
             setName('');
             setRut('');
@@ -55,6 +54,10 @@ const CreateClientComponent = () => {
             setEmail('');
             setIsValid(true);
         } catch (error) {
+            if (error.response.status === 500) {
+                showErrorNotification('El RUT ingresado ya se encuentra registrado');
+                return;
+            }
             const errorMessage = handleApiError(error, 'crear cliente');
             showErrorNotification(errorMessage);
         }
@@ -84,7 +87,7 @@ const CreateClientComponent = () => {
                                         required
                                     />
                                 </div>
-                                
+
                                 <div className='mb-3'>
                                     <label className='form-label fw-semibold'>RUT:</label>
                                     <input
@@ -99,7 +102,7 @@ const CreateClientComponent = () => {
                                     />
                                     {!isValid && <div className="invalid-feedback">RUT inválido. Verifique el formato y dígito verificador.</div>}
                                 </div>
-                                
+
                                 <div className='row'>
                                     <div className='col-md-6 mb-3'>
                                         <label className='form-label fw-semibold'>Teléfono:</label>
@@ -124,7 +127,7 @@ const CreateClientComponent = () => {
                                         />
                                     </div>
                                 </div>
-                                
+
                                 <div className='text-center'>
                                     <button type='submit' className='btn btn-accent btn-lg px-5' disabled={!isValid}>
                                         <i className="fas fa-save me-2"></i>

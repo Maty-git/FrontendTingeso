@@ -1,7 +1,7 @@
 import React from 'react'
 import { useNavigate, useLocation } from 'react-router-dom';
 import ToolRent from '../assets/ToolRent.png';
-import { useKeycloak } from '@react-keycloak/web'; 
+import { useKeycloak } from '@react-keycloak/web';
 
 const HeaderComponent = () => {
   const { keycloak, initialized } = useKeycloak(); // Hook de Keycloak
@@ -32,15 +32,15 @@ const HeaderComponent = () => {
     <div>
       <nav className="navbar navbar-expand-lg navbar-dark navbar-custom">
         <div className="container">
-          <a className="navbar-brand d-flex align-items-center" href="#">
-            <img 
-              src={ToolRent} 
-              alt="ToolRent" 
-              width="28" 
-              height="28" 
+          <a className="navbar-brand d-flex align-items-center" href="#" onClick={navigateToHome}>
+            <img
+              src={ToolRent}
+              alt="ToolRent"
+              width="28"
+              height="28"
               className="me-2 p-1 bg-white rounded-circle"
             />
-            <span className="fw-bold">ToolRent</span>
+            <span className="fw-bold" onClick={navigateToHome}>ToolRent</span>
           </a>
           <button
             className="navbar-toggler"
@@ -52,20 +52,14 @@ const HeaderComponent = () => {
           </button>
           <div className="collapse navbar-collapse" id="nav1">
             <ul className="navbar-nav me-auto">
-              <li className="nav-item">
-                <a className="nav-link active" onClick={navigateToHome} href="#">
-                  <i className="fas fa-home me-1"></i>Inicio
-                </a>
-              </li>
-              
               {/* Gestión de Herramientas */}
               <li className="nav-item dropdown">
-                <a 
+                <a
                   className={`nav-link dropdown-toggle ${isDropdownActive(['/tools', '/create-tool', '/manage-tool', '/tools-history', '/review-tools']) ? 'active' : ''}`}
-                  href="#" 
-                  id="toolsDropdown" 
-                  role="button" 
-                  data-bs-toggle="dropdown" 
+                  href="#"
+                  id="toolsDropdown"
+                  role="button"
+                  data-bs-toggle="dropdown"
                   aria-expanded="false"
                 >
                   <i className="fas fa-tools me-1"></i>Herramientas
@@ -102,12 +96,12 @@ const HeaderComponent = () => {
 
               {/* Gestión de Préstamos */}
               <li className="nav-item dropdown">
-                <a 
+                <a
                   className={`nav-link dropdown-toggle ${isDropdownActive(['/create-loan', '/return-loan', '/active-loans']) ? 'active' : ''}`}
-                  href="#" 
-                  id="loansDropdown" 
-                  role="button" 
-                  data-bs-toggle="dropdown" 
+                  href="#"
+                  id="loansDropdown"
+                  role="button"
+                  data-bs-toggle="dropdown"
                   aria-expanded="false"
                 >
                   <i className="fas fa-handshake me-1"></i>Préstamos
@@ -133,12 +127,12 @@ const HeaderComponent = () => {
 
               {/* Clientes y Deudas */}
               <li className="nav-item dropdown">
-                <a 
+                <a
                   className={`nav-link dropdown-toggle ${isDropdownActive(['/create-client', '/debts', '/clients-late-debts']) ? 'active' : ''}`}
-                  href="#" 
-                  id="clientsDropdown" 
-                  role="button" 
-                  data-bs-toggle="dropdown" 
+                  href="#"
+                  id="clientsDropdown"
+                  role="button"
+                  data-bs-toggle="dropdown"
                   aria-expanded="false"
                 >
                   <i className="fas fa-users me-1"></i>Clientes
@@ -147,6 +141,11 @@ const HeaderComponent = () => {
                   <li>
                     <a className="dropdown-item" href='#' onClick={(e) => { e.preventDefault(); navigateToCreateClient(); }}>
                       <i className="fas fa-user-plus me-2"></i>Nuevo Cliente
+                    </a>
+                  </li>
+                  <li>
+                    <a className="dropdown-item" href='#' onClick={(e) => { e.preventDefault(); navigate('/all-clients'); }}>
+                      <i className="fas fa-users me-2"></i>Clientes Registrados
                     </a>
                   </li>
                   <li><hr className="dropdown-divider" /></li>
@@ -165,12 +164,12 @@ const HeaderComponent = () => {
 
               {/* Reportes */}
               <li className="nav-item dropdown">
-                <a 
+                <a
                   className={`nav-link dropdown-toggle ${isDropdownActive(['/tool-ranking']) ? 'active' : ''}`}
-                  href="#" 
-                  id="reportsDropdown" 
-                  role="button" 
-                  data-bs-toggle="dropdown" 
+                  href="#"
+                  id="reportsDropdown"
+                  role="button"
+                  data-bs-toggle="dropdown"
                   aria-expanded="false"
                 >
                   <i className="fas fa-chart-bar me-1"></i>Reportes
@@ -209,7 +208,7 @@ const HeaderComponent = () => {
 
             {/* Botones de acciones generales */}
             <button className="btn btn-accent" onClick={navigateToCreateLoan}>Reservar</button>
-            <button className="btn btn-accent" onClick={navigateToReturnLoan} style={{ marginLeft:'10px'}}>Devolver</button>
+            <button className="btn btn-accent" onClick={navigateToReturnLoan} style={{ marginLeft: '10px' }}>Devolver</button>
           </div>
         </div>
       </nav>

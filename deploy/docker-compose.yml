@@ -126,10 +126,8 @@ services:
       - frontend-network
   # === JENKINS SERVER ===
   jenkins:
-    # 🚨 CAMBIO CLAVE: Usa 'build' en lugar de 'image'
-    build:
-      context: . 
-      dockerfile: Dockerfile.jenkins 
+    # Usamos la imagen base o una pre-construida, ya no construimos aquí
+    image: jenkins/jenkins:lts-jdk17
     container_name: jenkins
     user: root # Necesario para interactuar con el socket
     privileged: true
@@ -139,13 +137,12 @@ services:
     volumes:
       - jenkins_home:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock
-    networks:
-      - backend-network
 
 # === NETWORKS & VOLUMES ===
 networks:
   frontend-network:
   backend-network:
+
 
 volumes:
   postgres_data:

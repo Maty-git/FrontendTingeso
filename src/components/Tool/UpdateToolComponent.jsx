@@ -78,20 +78,7 @@ const UpdateToolComponent = () => {
           </select>
         </div>
 
-        <div className="mb-3">
-          <label>Estado</label>
-          <select
-            className="form-control"
-            name="state"
-            value={tool.state}
-            onChange={(e) => setTool({ ...tool, state: e.target.value })}
-          >
-            <option value="AVAILABLE">Disponible</option>
-            <option value="LOANED">Arrendada</option>
-            <option value="UNDER_REPAIR">En reparación</option>
-            <option value="OUT_OF_SERVICE">Fuera de servicio</option>
-          </select>
-        </div>
+        {/* State selection removed */}
 
         <div className="mb-3">
           <label>Valor Arriendo</label>
