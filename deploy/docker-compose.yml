@@ -37,58 +37,6 @@ services:
     networks:
       - backend-network
 
-  # === BACKEND INSTANCES (Spring Boot) ===
-  backend1:
-    image: matydocker1/backend:latest
-    container_name: backend1
-    environment:
-      - SPRING_DATASOURCE_URL=${DB_URL}
-      - SPRING_DATASOURCE_USERNAME=${DB_USERNAME}
-      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
-    depends_on:
-      - postgres
-    networks:
-      - backend-network
-
-  backend2:
-    image: matydocker1/backend:latest
-    container_name: backend2
-    environment:
-      - SPRING_DATASOURCE_URL=${DB_URL}
-      - SPRING_DATASOURCE_USERNAME=${DB_USERNAME}
-      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
-    depends_on:
-      - postgres
-    networks:
-      - backend-network
-
-  backend3:
-    image: matydocker1/backend:latest
-    container_name: backend3
-    environment:
-      - SPRING_DATASOURCE_URL=${DB_URL}
-      - SPRING_DATASOURCE_USERNAME=${DB_USERNAME}
-      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
-    depends_on:
-      - postgres
-    networks:
-      - backend-network
-
-  # === BACKEND LOAD BALANCER (Nginx) ===
-  nginx-backend:
-    image: nginx:latest
-    container_name: nginx-backend
-    ports:
-      - "8090:80"
-    volumes:
-      - ./nginx-backend.conf:/etc/nginx/nginx.conf:ro
-    depends_on:
-      - backend1
-      - backend2
-      - backend3
-    networks:
-      - backend-network
-
   # === FRONTEND INSTANCES (React) ===
   frontend1:
     image: matydocker1/frontend:latest
