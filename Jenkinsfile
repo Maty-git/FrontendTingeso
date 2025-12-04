@@ -1,9 +1,8 @@
 pipeline {
     agent any
 
-    // AGREGAMOS ESTO: Configura el disparador automático
     triggers {
-        // Revisa cambios en GitHub cada minuto
+
         pollSCM '* * * * *' 
     }
 

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { listTools } from "../../services/ToolService";
+import { getTools, deleteTool } from "../../services/ToolService";
 import { useNavigate } from 'react-router-dom';
+import { useKeycloak } from "@react-keycloak/web";
 
 const ManageToolsComponent = () => {
   const [tools, setTools] = useState([]);
@@ -9,7 +10,7 @@ const ManageToolsComponent = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    listTools()
+    getTools()
       .then((response) => {
         setTools(response.data);
       })
@@ -64,15 +65,32 @@ const ManageToolsComponent = () => {
     }
   }
 
-  // Handlers de acciones (sin lógica real aún)
+  // Obtener RUT del usuario desde Keycloak
+  const { keycloak } = useKeycloak();
+  const rutUser = keycloak?.tokenParsed?.rut;
+
+  // Handlers de acciones
   const handleUpdate = (tool) => {
     navigate(`/update-tool/${tool.name}/${tool.category}`);
   };
 
   const handleDelete = (tool) => {
+    if (!rutUser) {
+      alert("Error: No se pudo identificar al usuario (RUT no encontrado).");
+      return;
+    }
+
     if (window.confirm(`¿Seguro que deseas eliminar la herramienta "${tool.name}" (ID: ${tool.id})?`)) {
-      alert(`Eliminar herramienta: ${tool.name} (ID: ${tool.id})`);
-      // 🔹 Aquí se llamará luego al backend
+      deleteTool(tool.id, rutUser)
+        .then(() => {
+          alert("Herramienta eliminada correctamente.");
+          // Actualizar la lista
+          setTools(tools.filter((t) => t.id !== tool.id));
+        })
+        .catch((error) => {
+          console.error("Error al eliminar herramienta:", error);
+          alert("Ocurrió un error al intentar eliminar la herramienta.");
+        });
     }
   };
 
@@ -125,29 +143,27 @@ const ManageToolsComponent = () => {
           <table className="table table-custom mb-0">
             <thead>
               <tr>
+                <th>ID</th>
                 <th>Nombre</th>
                 <th>Categoría</th>
                 <th>Estado</th>
                 <th>Valor Arriendo</th>
                 <th>Valor Multa</th>
                 <th>Valor Reposición</th>
-                <th>Cantidad</th>
                 <th>Acciones</th>
               </tr>
             </thead>
             <tbody>
               {filteredTools.length > 0 ? (
                 filteredTools.map((tool, index) => (
-                  <tr key={index}>
+                  <tr key={tool.id}>
+                    <td><span className="badge bg-secondary">#{tool.id}</span></td>
                     <td className="fw-semibold">{tool.name}</td>
                     <td>{renderCategory(tool.category)}</td>
                     <td>{renderState(tool.state)}</td>
                     <td>${tool.rentDailyRate?.toLocaleString('es-CL') || '0'}</td>
                     <td>${tool.lateFee?.toLocaleString('es-CL') || '0'}</td>
                     <td>${tool.replacementValue?.toLocaleString('es-CL') || '0'}</td>
-                    <td>
-                      <span className="badge bg-info">{tool.count}</span>
-                    </td>
                     <td>
                       <div className="btn-group" role="group">
                         <button

@@ -184,7 +184,7 @@ const HeaderComponent = () => {
               </li>
             </ul>
 
-            {/* 🔹 Zona de autenticación con Keycloak */}
+            {/* Zona de autenticación con Keycloak */}
             {initialized && (
               <>
                 {keycloak.authenticated ? (
