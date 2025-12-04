@@ -24,7 +24,7 @@ RUN npm run build
 FROM nginx:alpine
 COPY --from=build /app/dist /usr/share/nginx/html
 # Asegúrate de tener esta línea que agregamos antes
-COPY deploy/nginx-frontend.conf /etc/nginx/conf.d/default.conf
+COPY deploy/nginx-app.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
