@@ -179,7 +179,11 @@ const CreateLoanComponent = () => {
                 setSelectedTool(null)
 
                 // Recargar la página para actualizar la lista de herramientas
-                window.location.reload()
+                setClientRut('')
+                setToolId(0)
+                setPrice(0)
+                setSelectedTool(null)
+                setReturnDateExpected('')
             })
             .catch((error) => {
                 console.error('Error al crear préstamo:', error)
