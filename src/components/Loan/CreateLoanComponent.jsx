@@ -268,7 +268,7 @@ const CreateLoanComponent = () => {
                                 </div>
 
                                 <div className='text-center'>
-                                    <button id="submitLoan" type='button' className='btn btn-accent btn-lg px-5' disabled={!isValidRut || toolId === 0}>
+                                    <button id="submitLoan" type='submit' className='btn btn-accent btn-lg px-5' disabled={!isValidRut || toolId === 0}>
                                         <i className="fas fa-save me-2"></i>
                                         Guardar Préstamo
                                     </button>
