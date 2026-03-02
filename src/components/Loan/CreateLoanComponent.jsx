@@ -232,6 +232,7 @@ const CreateLoanComponent = () => {
                                     <div className='col-md-6 mb-3'>
                                         <label className='form-label fw-semibold'>RUT del Cliente:</label>
                                         <input
+                                            id="clientRut"
                                             type='text'
                                             value={clientRut}
                                             className={`form-control form-control-custom ${!isValidRut ? "is-invalid" : ""}`}
