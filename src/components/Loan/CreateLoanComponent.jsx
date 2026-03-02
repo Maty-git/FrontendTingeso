@@ -7,20 +7,20 @@ import { getAllRuts } from '../../services/ClientService';
 import { validateRut, formatRut } from "@fdograph/rut-utilities";
 import { getToolStateLabel } from '../../utils/helpers';
 
-
 const CreateLoanComponent = () => {
     const [returnDateExpected, setReturnDateExpected] = useState('')
     const [quantity, setQuantity] = useState(1)
-    // const [status, setStatus] = useState('ACTIVE') // Status is always ACTIVE
     const [clientRut, setClientRut] = useState('')
     const [toolId, setToolId] = useState(0)
     const [price, setPrice] = useState(0)
     const [isValidRut, setIsValidRut] = useState(true)
     const [selectedTool, setSelectedTool] = useState(null)
-    const { keycloak } = useKeycloak(); //
 
+    // ✅ NUEVO: Estado para manejar la visibilidad del mensaje de éxito para Selenium
+    const [isSuccess, setIsSuccess] = useState(false);
+
+    const { keycloak } = useKeycloak();
     const rutUser = keycloak?.tokenParsed?.rut;
-
 
     const [tools, setTools] = useState([])
     const [ruts, setRuts] = useState([])
@@ -28,7 +28,6 @@ const CreateLoanComponent = () => {
 
     const searcher = (e) => {
         setSearch(e.target.value)
-        console.log(e.target.value)
     }
 
     let results = []
@@ -40,7 +39,6 @@ const CreateLoanComponent = () => {
         )
     }
 
-    // Filter only available tools
     results = results.filter(tool => tool.state === 'AVAILABLE');
 
     const handleRutChange = (e) => {
@@ -75,19 +73,13 @@ const CreateLoanComponent = () => {
 
     const calculatePrice = (tool, date, qty) => {
         if (tool && date && qty) {
-            // Parse local date from input string YYYY-MM-DD
             const [year, month, day] = date.split('-').map(Number);
-            const endDate = new Date(year, month - 1, day); // Local midnight
-
+            const endDate = new Date(year, month - 1, day);
             const today = new Date();
-            today.setHours(0, 0, 0, 0); // Local midnight today
-
+            today.setHours(0, 0, 0, 0);
             const diffTime = endDate - today;
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-            // Ensure at least 1 day if it's strictly positive
-            const days = diffDays > 0 ? diffDays : 0; // If 0 or negative, logic elsewhere handles it or price is 0
-
+            const days = diffDays > 0 ? diffDays : 0;
             const calculatedPrice = tool.rentDailyRate * days * qty;
             setPrice(calculatedPrice > 0 ? calculatedPrice : 0);
         } else {
@@ -99,13 +91,11 @@ const CreateLoanComponent = () => {
         getTools()
             .then((response) => setTools(response.data))
             .catch((error) => console.error('Error al listar herramientas:', error))
-        console.log(tools)
+
         getAllRuts()
             .then((response) => setRuts(response.data))
             .catch((error) => console.error('Error al listar clientes:', error))
     }, [])
-
-    const navigate = useNavigate()
 
     const saveLoan = async (e) => {
         e.preventDefault()
@@ -120,23 +110,17 @@ const CreateLoanComponent = () => {
             return;
         }
 
-        // Parse local date from input string YYYY-MM-DD
         const [year, month, day] = returnDateExpected.split('-').map(Number);
-        const selectedDate = new Date(year, month - 1, day); // Local midnight
-
+        const selectedDate = new Date(year, month - 1, day);
         const today = new Date();
-        today.setHours(0, 0, 0, 0); // Local midnight today
+        today.setHours(0, 0, 0, 0);
 
-        // Validation: selectedDate must be strictly greater than today
         if (selectedDate <= today) {
             alert("❌ La fecha de devolución debe ser al menos un día después de hoy.");
             return;
         }
 
-        // Fix time to 20:00 local time
         const fixedReturnDate = new Date(year, month - 1, day, 20, 0, 0);
-
-        // Adjusting the string to send to backend
         const y = fixedReturnDate.getFullYear();
         const m = String(fixedReturnDate.getMonth() + 1).padStart(2, '0');
         const d = String(fixedReturnDate.getDate()).padStart(2, '0');
@@ -151,39 +135,31 @@ const CreateLoanComponent = () => {
             quantity,
             status: 'ACTIVE',
             clientRut,
-            userRut: rutUser, // ✅ directo desde keycloak
+            userRut: rutUser,
             toolId,
             price
         }
 
-        console.log(loan)
-
         createLoan(loan)
             .then((response) => {
-                console.log(response.data)
                 if (response.data === false) {
                     alert("❌ Error: El cliente ya tiene un préstamo activo de esta herramienta, o el cliente está restringido.")
                     return
                 }
 
-                // Mensaje de éxito
-                <span id="successMessage" className="text-success">✅ ¡Préstamo registrado exitosamente!</span>
+                // ✅ SE ACTIVA EL ESTADO DE ÉXITO PARA QUE SELENIUM DETECTE EL ID
+                setIsSuccess(true);
 
                 // Limpiar formulario
                 setReturnDateExpected('')
                 setQuantity(1)
-                // setStatus('ACTIVE')
                 setClientRut('')
                 setToolId(0)
                 setPrice(0)
                 setSelectedTool(null)
 
-                // Recargar la página para actualizar la lista de herramientas
-                setClientRut('')
-                setToolId(0)
-                setPrice(0)
-                setSelectedTool(null)
-                setReturnDateExpected('')
+                // Ocultar el mensaje después de 6 segundos para permitir que Selenium lo lea
+                setTimeout(() => setIsSuccess(false), 6000);
             })
             .catch((error) => {
                 console.error('Error al crear préstamo:', error)
@@ -191,12 +167,17 @@ const CreateLoanComponent = () => {
             })
     }
 
-
-
     return (
         <div className='container-fluid py-4'>
             <div className='row justify-content-center'>
                 <div className='col-lg-8'>
+                    {/* ✅ RENDERIZADO DEL MENSAJE DE ÉXITO PARA SELENIUM */}
+                    {isSuccess && (
+                        <div className="alert alert-success text-center mb-4 animate__animated animate__fadeIn">
+                            <span id="successMessage">✅ ¡Préstamo registrado exitosamente!</span>
+                        </div>
+                    )}
+
                     <div className='card card-custom'>
                         <div className='card-header-custom'>
                             <h2 className='h4 mb-0 text-center'>
@@ -232,7 +213,6 @@ const CreateLoanComponent = () => {
                                 </div>
 
                                 <div className='row'>
-                                    {/* Status selection removed */}
                                     <div className='col-md-6 mb-3'>
                                         <label className='form-label fw-semibold'>RUT del Cliente:</label>
                                         <input
@@ -278,6 +258,7 @@ const CreateLoanComponent = () => {
                     </div>
                 </div>
             </div>
+
             <div className="mt-4">
                 <div className="card card-custom">
                     <div className="card-header-custom">
@@ -309,7 +290,7 @@ const CreateLoanComponent = () => {
                                 </thead>
                                 <tbody>
                                     {results.map(tool => (
-                                        <tr key={tool.id} style={{ cursor: 'pointer' }}>
+                                        <tr key={tool.id}>
                                             <td>{tool.id}</td>
                                             <td>{tool.name}</td>
                                             <td>{tool.category}</td>
@@ -322,14 +303,13 @@ const CreateLoanComponent = () => {
                                                 </span>
                                             </td>
                                             <td>
-                                                <td>
-                                                    <button
-                                                        className="btn btn-sm btn-accent"
-                                                        onClick={() => handleToolSelect(tool)}
-                                                    >
-                                                        Seleccionar
-                                                    </button>
-                                                </td>
+                                                <button
+                                                    type="button"
+                                                    className="btn btn-sm btn-accent"
+                                                    onClick={() => handleToolSelect(tool)}
+                                                >
+                                                    Seleccionar
+                                                </button>
                                             </td>
                                         </tr>
                                     ))}
