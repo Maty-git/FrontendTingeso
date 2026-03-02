@@ -148,7 +148,7 @@ const CreateLoanComponent = () => {
                 }
 
                 // ✅ SE ACTIVA EL ESTADO DE ÉXITO PARA QUE SELENIUM DETECTE EL ID
-                alert("✅ ¡Préstamo registrado exitosamente!")[cite: 30]
+                alert("✅ ¡Préstamo registrado exitosamente!")
 
                 // Limpiar formulario
                 setReturnDateExpected('')
