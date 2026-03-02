@@ -8,6 +8,7 @@ import { validateRut, formatRut } from "@fdograph/rut-utilities";
 import { getToolStateLabel } from '../../utils/helpers';
 
 const CreateLoanComponent = () => {
+    // Estados base del formulario
     const [returnDateExpected, setReturnDateExpected] = useState('')
     const [quantity, setQuantity] = useState(1)
     const [clientRut, setClientRut] = useState('')
@@ -16,30 +17,25 @@ const CreateLoanComponent = () => {
     const [isValidRut, setIsValidRut] = useState(true)
     const [selectedTool, setSelectedTool] = useState(null)
 
-    // ✅ NUEVO: Estado para manejar la visibilidad del mensaje de éxito para Selenium
-    const [isSuccess, setIsSuccess] = useState(false);
+    // ✅ 1. Estados Pro para alertas (Selenium friendly)
+    const [showAlert, setShowAlert] = useState(false);
+    const [alertMsg, setAlertMsg] = useState('');
 
     const { keycloak } = useKeycloak();
     const rutUser = keycloak?.tokenParsed?.rut;
 
     const [tools, setTools] = useState([])
-    const [ruts, setRuts] = useState([])
     const [search, setSearch] = useState('')
 
-    const searcher = (e) => {
-        setSearch(e.target.value)
-    }
+    const searcher = (e) => setSearch(e.target.value);
 
-    let results = []
-    if (!search) {
-        results = tools
-    } else {
-        results = tools.filter((dato) =>
+    // Filtrado de herramientas según reglas de negocio (Disponible y con Stock) [cite: 28, 50]
+    let results = tools.filter(tool => tool.state === 'AVAILABLE');
+    if (search) {
+        results = results.filter((dato) =>
             dato.name.toLowerCase().includes(search.toLowerCase())
-        )
+        );
     }
-
-    results = results.filter(tool => tool.state === 'AVAILABLE');
 
     const handleRutChange = (e) => {
         const value = e.target.value;
@@ -48,9 +44,7 @@ const CreateLoanComponent = () => {
     };
 
     const handleRutBlur = () => {
-        if (isValidRut) {
-            setClientRut(formatRut(clientRut));
-        }
+        if (isValidRut) setClientRut(formatRut(clientRut));
     };
 
     const handleToolSelect = (tool) => {
@@ -87,26 +81,23 @@ const CreateLoanComponent = () => {
         }
     };
 
-    useEffect(() => {
+    const loadInitialData = () => {
         getTools()
             .then((response) => setTools(response.data))
-            .catch((error) => console.error('Error al listar herramientas:', error))
+            .catch((error) => console.error('Error al listar herramientas:', error));
+    };
 
-        getAllRuts()
-            .then((response) => setRuts(response.data))
-            .catch((error) => console.error('Error al listar clientes:', error))
+    useEffect(() => {
+        loadInitialData();
     }, [])
 
     const saveLoan = async (e) => {
-        e.preventDefault()
+        e.preventDefault();
 
+        // Validaciones preventivas antes del envío [cite: 52]
         if (!validateRut(clientRut)) {
-            alert("❌ El RUT ingresado no es válido.");
-            return;
-        }
-
-        if (!tools.some(tool => tool.id === toolId)) {
-            alert("❌ Debe seleccionar una herramienta de la lista.");
+            setAlertMsg("❌ El RUT ingresado no es válido.");
+            setShowAlert(true);
             return;
         }
 
@@ -116,19 +107,12 @@ const CreateLoanComponent = () => {
         today.setHours(0, 0, 0, 0);
 
         if (selectedDate <= today) {
-            alert("❌ La fecha de devolución debe ser al menos un día después de hoy.");
+            setAlertMsg("❌ La fecha de devolución debe ser al menos un día después de hoy.");
+            setShowAlert(true);
             return;
         }
 
-        const fixedReturnDate = new Date(year, month - 1, day, 20, 0, 0);
-        const y = fixedReturnDate.getFullYear();
-        const m = String(fixedReturnDate.getMonth() + 1).padStart(2, '0');
-        const d = String(fixedReturnDate.getDate()).padStart(2, '0');
-        const h = String(fixedReturnDate.getHours()).padStart(2, '0');
-        const min = String(fixedReturnDate.getMinutes()).padStart(2, '0');
-        const s = String(fixedReturnDate.getSeconds()).padStart(2, '0');
-
-        const formattedDate = `${y}-${m}-${d}T${h}:${min}:${s}`;
+        const formattedDate = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}T20:00:00`;
 
         const loan = {
             returnDateExpected: formattedDate,
@@ -138,119 +122,85 @@ const CreateLoanComponent = () => {
             userRut: rutUser,
             toolId,
             price
-        }
+        };
 
+        // ✅ 2. Lógica del .then actualizada con estados Pro
         createLoan(loan)
             .then((response) => {
                 if (response.data === false) {
-                    alert("❌ Error: El cliente ya tiene un préstamo activo de esta herramienta, o el cliente está restringido.")
-                    return
+                    setAlertMsg("❌ Error: Cliente restringido o préstamo duplicado.");
+                    setShowAlert(true);
+                    return;
                 }
 
-                // ✅ SE ACTIVA EL ESTADO DE ÉXITO PARA QUE SELENIUM DETECTE EL ID
-                alert("✅ ¡Préstamo registrado exitosamente!")
+                // Notificación de éxito detectada por Selenium 
+                setAlertMsg("✅ ¡Préstamo registrado exitosamente!");
+                setShowAlert(true);
 
-                // Limpiar formulario
-                setReturnDateExpected('')
-                setQuantity(1)
-                setClientRut('')
-                setToolId(0)
-                setPrice(0)
-                setSelectedTool(null)
+                // Limpiar campos y refrescar tabla sin recargar página
+                setReturnDateExpected('');
+                setQuantity(1);
+                setClientRut('');
+                setToolId(0);
+                setPrice(0);
+                setSelectedTool(null);
+                loadInitialData();
 
-                // Ocultar el mensaje después de 6 segundos para permitir que Selenium lo lea
-                getTools().then(res => setTools(res.data));
+                // Auto-ocultar alerta después de 5 seg para limpiar la UI
+                setTimeout(() => setShowAlert(false), 5000);
             })
             .catch((error) => {
-                console.error('Error al crear préstamo:', error)
-                alert("❌ Error al crear el préstamo. Por favor, intente nuevamente.")
-            })
+                setAlertMsg("❌ Error crítico en el servidor. Intente más tarde.");
+                setShowAlert(true);
+            });
     }
 
     return (
         <div className='container-fluid py-4'>
             <div className='row justify-content-center'>
                 <div className='col-lg-8'>
-                    {/* ✅ RENDERIZADO DEL MENSAJE DE ÉXITO PARA SELENIUM */}
-                    {isSuccess && (
-                        <div className="alert alert-success text-center mb-4 animate__animated animate__fadeIn">
-                            <span id="successMessage">✅ ¡Préstamo registrado exitosamente!</span>
+
+                    {/* ✅ 3. Alerta HTML inyectada al principio de la columna */}
+                    {showAlert && (
+                        <div className="alert alert-info alert-dismissible fade show shadow-sm" role="alert" id="customAlert">
+                            <strong>{alertMsg}</strong>
+                            <button type="button" className="btn-close" onClick={() => setShowAlert(false)} aria-label="Close"></button>
                         </div>
                     )}
 
-                    <div className='card card-custom'>
-                        <div className='card-header-custom'>
-                            <h2 className='h4 mb-0 text-center'>
-                                <i className="fas fa-handshake me-2"></i>
-                                Registrar Nuevo Préstamo
-                            </h2>
+                    <div className='card card-custom shadow-sm'>
+                        <div className='card-header bg-primary text-white text-center'>
+                            <h2 className='h4 mb-0'>Registrar Nuevo Préstamo</h2>
                         </div>
                         <div className='card-body p-4'>
                             <form onSubmit={saveLoan}>
                                 <div className='row'>
                                     <div className='col-md-6 mb-3'>
-                                        <label className='form-label fw-semibold'>Fecha esperada de devolución:</label>
-                                        <input
-                                            type='date'
-                                            value={returnDateExpected}
-                                            className='form-control form-control-custom'
-                                            onChange={handleDateChange}
-                                            required
-                                        />
-                                        <small className="text-muted">La hora de devolución se fijará a las 20:00</small>
+                                        <label className='form-label fw-bold'>Fecha de Devolución:</label>
+                                        <input type='date' value={returnDateExpected} className='form-control' onChange={handleDateChange} required />
                                     </div>
                                     <div className='col-md-6 mb-3'>
-                                        <label className='form-label fw-semibold'>Cantidad:</label>
-                                        <input
-                                            type='number'
-                                            value={quantity}
-                                            className='form-control form-control-custom'
-                                            onChange={handleQuantityChange}
-                                            min="1"
-                                            required
-                                        />
+                                        <label className='form-label fw-bold'>Cantidad:</label>
+                                        <input type='number' value={quantity} className='form-control' onChange={handleQuantityChange} min="1" required />
                                     </div>
                                 </div>
-
                                 <div className='row'>
                                     <div className='col-md-6 mb-3'>
-                                        <label className='form-label fw-semibold'>RUT del Cliente:</label>
-                                        <input
-                                            id="clientRut"
-                                            type='text'
-                                            value={clientRut}
-                                            className={`form-control form-control-custom ${!isValidRut ? "is-invalid" : ""}`}
-                                            onChange={handleRutChange}
-                                            onBlur={handleRutBlur}
-                                            placeholder="Ej: 12.345.678-9"
-                                            required
-                                        />
-                                        {!isValidRut && <div className="invalid-feedback">RUT inválido.</div>}
+                                        <label className='form-label fw-bold'>RUT Cliente:</label>
+                                        <input id="clientRut" type='text' value={clientRut} className={`form-control ${!isValidRut ? "is-invalid" : ""}`} onChange={handleRutChange} onBlur={handleRutBlur} required />
                                     </div>
                                     <div className='col-md-6 mb-3'>
-                                        <label className='form-label fw-semibold'>Precio Estimado:</label>
-                                        <div className="form-control form-control-custom bg-light">
-                                            ${price.toLocaleString('es-CL')}
-                                        </div>
+                                        <label className='form-label fw-bold'>Precio Estimado:</label>
+                                        <div className="form-control bg-light">${price.toLocaleString('es-CL')}</div>
                                     </div>
                                 </div>
-
                                 <div className='mb-4'>
-                                    <label className='form-label fw-semibold'>ID de la Herramienta:</label>
-                                    <input
-                                        type='number'
-                                        value={toolId}
-                                        className='form-control form-control-custom'
-                                        readOnly
-                                        placeholder="Selecciona una herramienta de la tabla"
-                                        required
-                                    />
+                                    <label className='form-label fw-bold'>ID Herramienta Seleccionada:</label>
+                                    <input type='number' value={toolId} className='form-control' readOnly required />
                                 </div>
-
                                 <div className='text-center'>
-                                    <button id="submitLoan" type='submit' className='btn btn-accent btn-lg px-5' disabled={!isValidRut || toolId === 0}>
-                                        <i className="fas fa-save me-2"></i>
-                                        Guardar Préstamo
+                                    <button id="submitLoan" type='submit' className='btn btn-success btn-lg px-5' disabled={!isValidRut || toolId === 0}>
+                                        <i className="fas fa-save me-2"></i> Guardar Préstamo
                                     </button>
                                 </div>
                             </form>
@@ -258,64 +208,30 @@ const CreateLoanComponent = () => {
                     </div>
                 </div>
             </div>
-
-            <div className="mt-4">
-                <div className="card card-custom">
-                    <div className="card-header-custom">
-                        <h3 className="h5 mb-0">
-                            <i className="fas fa-search me-2"></i>
-                            Seleccionar Herramienta
-                        </h3>
-                    </div>
-                    <div className="card-body">
-                        <div className="mb-3">
-                            <input
-                                value={search}
-                                onChange={searcher}
-                                type="text"
-                                placeholder='Buscar herramienta por nombre...'
-                                className='form-control form-control-custom'
-                            />
-                        </div>
-                        <div className="table-responsive">
-                            <table className='table table-custom'>
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Nombre</th>
-                                        <th>Categoría</th>
-                                        <th>Estado</th>
-                                        <th>Acción</th>
+            {/* Tabla de selección de herramientas [cite: 21] */}
+            <div className="mt-4 card card-custom shadow-sm">
+                <div className="card-body">
+                    <input value={search} onChange={searcher} type="text" placeholder='🔍 Filtrar herramientas por nombre...' className='form-control mb-3' />
+                    <div className="table-responsive">
+                        <table className='table table-hover'>
+                            <thead className="table-light">
+                                <tr><th>ID</th><th>Nombre</th><th>Tarifa Diaria</th><th>Acción</th></tr>
+                            </thead>
+                            <tbody>
+                                {results.map(tool => (
+                                    <tr key={tool.id}>
+                                        <td>{tool.id}</td>
+                                        <td>{tool.name}</td>
+                                        <td>${tool.rentDailyRate.toLocaleString('es-CL')}</td>
+                                        <td>
+                                            <button type="button" className="btn btn-sm btn-outline-primary" onClick={() => handleToolSelect(tool)}>
+                                                Seleccionar
+                                            </button>
+                                        </td>
                                     </tr>
-                                </thead>
-                                <tbody>
-                                    {results.map(tool => (
-                                        <tr key={tool.id}>
-                                            <td>{tool.id}</td>
-                                            <td>{tool.name}</td>
-                                            <td>{tool.category}</td>
-                                            <td>
-                                                <span className={`badge badge-custom ${tool.state === 'AVAILABLE' ? 'bg-success' :
-                                                    tool.state === 'LOANED' ? 'bg-primary' :
-                                                        tool.state === 'UNDER_REPAIR' ? 'bg-warning' : 'bg-danger'
-                                                    }`}>
-                                                    {getToolStateLabel(tool.state)}
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <button
-                                                    type="button"
-                                                    className="btn btn-sm btn-accent"
-                                                    onClick={() => handleToolSelect(tool)}
-                                                >
-                                                    Seleccionar
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
+                                ))}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -323,4 +239,4 @@ const CreateLoanComponent = () => {
     )
 }
 
-export default CreateLoanComponent
+export default CreateLoanComponent;
