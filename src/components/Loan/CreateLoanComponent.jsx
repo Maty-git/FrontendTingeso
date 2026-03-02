@@ -148,7 +148,7 @@ const CreateLoanComponent = () => {
                 }
 
                 // ✅ SE ACTIVA EL ESTADO DE ÉXITO PARA QUE SELENIUM DETECTE EL ID
-                setIsSuccess(true);
+                alert("✅ ¡Préstamo registrado exitosamente!")[cite: 30]
 
                 // Limpiar formulario
                 setReturnDateExpected('')
@@ -159,7 +159,7 @@ const CreateLoanComponent = () => {
                 setSelectedTool(null)
 
                 // Ocultar el mensaje después de 6 segundos para permitir que Selenium lo lea
-                setTimeout(() => setIsSuccess(false), 6000);
+                getTools().then(res => setTools(res.data));
             })
             .catch((error) => {
                 console.error('Error al crear préstamo:', error)
